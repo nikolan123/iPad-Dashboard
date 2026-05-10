@@ -1217,5 +1217,3 @@ extern int ZEXPORT zipClose (file, global_comment)
 
     return err;
 }
-rr;
-}
