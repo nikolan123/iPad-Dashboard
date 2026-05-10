@@ -1,8 +1,24 @@
 .DS_Store
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+.fseventsd
+
 *.swp
 *~.nib
 
 build/
+DerivedData/
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+*.xcuserstate
+*.ipa
+*.dSYM.zip
+*.dSYM
 
 *.pbxuser
 *.perspective
