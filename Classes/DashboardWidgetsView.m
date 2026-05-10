@@ -76,7 +76,7 @@
             NSString *widgetPath = [DashboardAppDelegate widgetPath];
             // Create widgetPath directory if one does not exist yet
             if (![[NSFileManager defaultManager] fileExistsAtPath:widgetPath]) {
-                [[NSFileManager defaultManager] createDirectoryAtPath:widgetPath attributes:nil];
+                [[NSFileManager defaultManager] createDirectoryAtPath:widgetPath withIntermediateDirectories:YES attributes:nil error:NULL];
             }
             
             NSString *bundlePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Widgets"];
@@ -227,6 +227,8 @@
             dragItem = nil;
             positionOrigin = -1;
             break;
+        default:
+            break;
     }
 }
 
@@ -260,6 +262,8 @@
         case UIGestureRecognizerStateEnded:
             dragItem = nil;
             positionOrigin = -1;
+            break;
+        default:
             break;
     }
 }
@@ -302,7 +306,7 @@
 #pragma mark DashboardDownloadItemDelegate Protocol
 
 - (void)downloadItem:(DashboardDownloadItem *)downloadItem didFailWithError:(NSError *)error {
-    NSLog(@"%s %@", _cmd, error);
+    NSLog(@"%s %@", sel_getName(_cmd), error);
     [self removeIcon:downloadItem];
 }
 

@@ -28,6 +28,10 @@
 
 #import "DashboardWidget.h"
 
+@interface UIView (DashboardPrivateAnimation)
++ (void)setAnimationPosition:(CGPoint)position;
+@end
+
 static const CGFloat kSpringLoadFraction = 0.18;
 static const NSTimeInterval kSpringLoadTimeInterval = 0.5;
 
@@ -323,6 +327,8 @@ static const NSTimeInterval kSpringLoadTimeInterval = 0.5;
             self.alpha = 1.0;
             [self.webView stringByEvaluatingJavaScriptFromString:@"widget.ondragend();"];
             break;
+        default:
+            break;
     }
 }
 
@@ -519,7 +525,7 @@ static const NSTimeInterval kSpringLoadTimeInterval = 0.5;
 }
 
 - (void)js_prepareForTransition:(NSString *)transition {
-    NSLog(@"%s(%@)", _cmd, transition);
+    NSLog(@"%s(%@)", sel_getName(_cmd), transition);
 
     // FIXME: buggy
     if ([transition isEqualToString:@"ToBack"]) {
@@ -536,7 +542,7 @@ static const NSTimeInterval kSpringLoadTimeInterval = 0.5;
 }
 
 - (void)js_performTransition {
-    NSLog(@"%s", _cmd);
+    NSLog(@"%s", sel_getName(_cmd));
 
     // FIXME: buggy
     [UIView commitAnimations];
@@ -574,7 +580,7 @@ NSString * const kJSSelectorPrefix = @"js_";
 }
 
 - (id)invokeUndefinedMethodFromWebScript:(NSString *)aName withArguments:(NSArray *)arguments {
-    NSLog(@"%s %@ %@", _cmd, aName, arguments);
+    NSLog(@"%s %@ %@", sel_getName(_cmd), aName, arguments);
     /* TODO:
             widget.openApplication
             widget.system

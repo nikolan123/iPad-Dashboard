@@ -54,7 +54,8 @@ static NSUInteger kNumberOfPages = 5;
     UIImage *newImage = [[UIImage imageNamed:@"DashboardNew.png"] stretchableImageWithLeftCapWidth:19.0 topCapHeight:0];
     self.newButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.newButton setTitle:@"Find New Widgets..." forState:UIControlStateNormal];
-    self.newButton.frame = CGRectMake(80.0, appSize.height - BUTTON_SPACING - 37.0, [self.newButton.titleLabel.text sizeWithFont:self.newButton.titleLabel.font].width + 38.0, 37.0);
+    CGSize newButtonTitleSize = [self.newButton.titleLabel.text sizeWithAttributes:[NSDictionary dictionaryWithObject:self.newButton.titleLabel.font forKey:NSFontAttributeName]];
+    self.newButton.frame = CGRectMake(80.0, appSize.height - BUTTON_SPACING - 37.0, newButtonTitleSize.width + 38.0, 37.0);
     [self.newButton setBackgroundImage:newImage forState:UIControlStateNormal];
     [self.newButton addTarget:self action:@selector(showDownloadView) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.newButton];
@@ -80,7 +81,7 @@ static NSUInteger kNumberOfPages = 5;
     NSURL *url = [notification object];
     DashboardBrowserViewController *browserView = [[DashboardBrowserViewController alloc] initWithHome:url];
     browserView.modalPresentationStyle = UIModalPresentationFormSheet;
-    [self presentModalViewController:browserView animated:YES];
+    [self presentViewController:browserView animated:YES completion:nil];
     [browserView release];
 }
 
@@ -202,7 +203,7 @@ static NSUInteger kNumberOfPages = 5;
 
 - (void)showDownloadView {
     DashboardBrowserViewController *browserView = [[DashboardBrowserViewController alloc] initWithHome:[self createDirectoryURL]];
-    [self presentModalViewController:browserView animated:YES];
+    [self presentViewController:browserView animated:YES completion:nil];
     [browserView release];
 
     [self.widgetsView endEditing];

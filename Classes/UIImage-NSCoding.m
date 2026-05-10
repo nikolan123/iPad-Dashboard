@@ -4,6 +4,9 @@
 #import "UIImage-NSCoding.h"
 #define kEncodingKey		@"UIImage"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
+
 @implementation UIImage(NSCoding)
 - (id)initWithCoder:(NSCoder *)decoder
 {
@@ -21,3 +24,5 @@
 	[encoder encodeObject:data forKey:kEncodingKey];
 }
 @end
+
+#pragma clang diagnostic pop

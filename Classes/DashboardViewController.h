@@ -62,7 +62,7 @@
 @property (nonatomic, retain) DashboardWidgetsView *widgetsView;
 
 @property (nonatomic, retain) UIButton *addButton;
-@property (nonatomic, retain) UIButton *newButton;
+@property (nonatomic, retain, getter=dashboardNewButton) UIButton *newButton;
 
 @property (nonatomic, retain) IBOutlet UIPageControl *pageControl;
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollView;

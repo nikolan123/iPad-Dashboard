@@ -30,7 +30,7 @@
 #import "DashboardAppDelegate.h"
 
 
-@interface DashboardGadget : NSObject {
+@interface DashboardGadget : NSObject <NSXMLParserDelegate> {
     NSString *title;
     NSString *url;
     NSInteger height;

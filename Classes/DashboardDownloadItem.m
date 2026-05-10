@@ -64,7 +64,7 @@
 		self.label.text = @"Waiting...";
 		self.label.backgroundColor = [UIColor clearColor];
 		self.label.font = [UIFont boldSystemFontOfSize:12.0];
-		self.label.textAlignment = UITextAlignmentCenter;
+		self.label.textAlignment = NSTextAlignmentCenter;
 		self.label.textColor = [UIColor darkGrayColor];
 		self.label.shadowColor = [UIColor whiteColor];
 		self.label.shadowOffset = CGSizeMake(0, 1);
@@ -131,3 +131,4 @@
 }
 
 @end
+
