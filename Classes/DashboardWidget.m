@@ -267,6 +267,7 @@ static const NSTimeInterval kSpringLoadTimeInterval = 0.5;
     CGPoint loc = [sender locationInView:self.superview.superview];
     CGRect aFrame;
     float deltaX, deltaY;
+    UIScrollView *parentScrollView = (UIScrollView *)self.superview;
     
     CGFloat springLoadDistance;
     BOOL goToPreviousPage, goToNextPage;
@@ -280,6 +281,7 @@ static const NSTimeInterval kSpringLoadTimeInterval = 0.5;
             self.prevLoc = loc;
             [self.superview bringSubviewToFront:self];
             self.alpha = 0.7;
+            parentScrollView.scrollEnabled = NO;
             [self.webView stringByEvaluatingJavaScriptFromString:@"widget.ondragstart();"];
 
             [_springLoadTimer invalidate];
@@ -323,8 +325,11 @@ static const NSTimeInterval kSpringLoadTimeInterval = 0.5;
             self.prevLoc = loc;
             break;
         case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed:
             self.prevLoc = CGPointZero;
             self.alpha = 1.0;
+            parentScrollView.scrollEnabled = YES;
             [self.webView stringByEvaluatingJavaScriptFromString:@"widget.ondragend();"];
             break;
         default:
