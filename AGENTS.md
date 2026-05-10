@@ -39,6 +39,8 @@ Mac share backing that Windows drive:
   App preferences bundle.
 - `build-unsigned-ipa.sh`
   Helper script for building an unsigned IPA on the Mac.
+- `install_on_ipad.py`
+  Windows-side helper that uploads an IPA to the jailbroken iPad, fakesigns the app binary with `ldid`, repackages it, installs it with `appinst`, and runs `uicache`.
 
 ## Build commands
 
@@ -66,6 +68,24 @@ That script writes:
 
 - `/Users/niko/Documents/Dashboard/Dashboard-unsigned.ipa`
 
+Install the app on the jailbroken iPad from Windows:
+
+```sh
+python install_on_ipad.py
+```
+
+What `install_on_ipad.py` does:
+
+- uploads the configured IPA to `/var/mobile/Documents` on the iPad
+- unpacks it into a temporary working directory
+- writes a minimal entitlements plist with the configured bundle identifier
+- runs `ldid -Sent.plist` on the app binary
+- repackages the IPA as a fixed installable archive
+- installs it with `appinst`
+- refreshes icons with `uicache`
+
+If the script exits silently when run from `Y:\Dashboard\.codex-ssh-venv`, that usually points to the shared-drive Python environment rather than the script logic itself.
+
 ## SSH access
 
 Mac VM:
@@ -82,6 +102,7 @@ Useful note:
 
 - the copied venv inside `Y:\Dashboard\.codex-ssh-venv` may not run reliably from the SMB share
 - the original local Windows path has been the dependable one
+- if `install_on_ipad.py` exits silently from the share-mounted venv, prefer a local Python environment instead of the copied SMB-hosted venv
 
 ## SMB / shared-drive workflow
 
@@ -141,6 +162,7 @@ Windows-side `git status` is usually the more useful signal for content changes 
 - Xcode version is old enough that SDK names are `iphonesimulator7.1` and `iphoneos7.1`
 - `/usr/bin/xcodebuild` is not the right binary on this Mac; use the Xcode.app path above
 - the app now builds warning-free on the simulator from the Mac-local Documents checkout
+- Python/Paramiko inside `Y:\Dashboard\.codex-ssh-venv` can fail before script startup on this machine, so silent exits there do not necessarily mean the installer logic is broken
 
 ## Editing guidance
 

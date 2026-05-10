@@ -67,6 +67,7 @@
 
 - (id)initWithFrame:(CGRect)frame delegate:(id<DashboardWidgetsViewDelegate>)aDelegate;
 
+- (void)ensureBundledWidgetsInstalled;
 - (void)reloadWidgets;
 
 - (void)showScrollView:(BOOL)animated;

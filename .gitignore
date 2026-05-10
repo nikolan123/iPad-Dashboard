@@ -20,6 +20,7 @@ xcuserdata/
 *.dSYM
 
 .codex-ssh-venv/
+*.pyc
 
 *.pbxuser
 *.perspective

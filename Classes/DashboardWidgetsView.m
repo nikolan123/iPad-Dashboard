@@ -36,6 +36,20 @@
 @synthesize scrollView;
 @synthesize editing;
 
++ (NSArray *)bundledWidgetNames {
+    NSString *bundlePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Widgets"];
+    NSArray *bundleWidgets = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:bundlePath error:NULL];
+    NSMutableArray *widgets = [NSMutableArray arrayWithCapacity:[bundleWidgets count]];
+
+    for (NSString *widget in bundleWidgets) {
+        if ([widget hasSuffix:@".wdgt"]) {
+            [widgets addObject:widget];
+        }
+    }
+
+    return widgets;
+}
+
 + (void)replacePathOfType:(NSString*)type inDirectory:(NSString*)dir {
     // Replace all "file:///System/Library/WidgetResources" with "file://" + widgetResourcesPath
     NSArray *files = [NSBundle pathsForResourcesOfType:type inDirectory:dir];
@@ -44,6 +58,40 @@
         NSString *file = [NSString stringWithContentsOfFile:path usedEncoding:&enc error:NULL];
         file = [file stringByReplacingOccurrencesOfString:@"/System/Library/WidgetResources" withString:[DashboardAppDelegate widgetResourcesPath]];
         [file writeToFile:path atomically:NO encoding:enc error:NULL];
+    }
+}
+
+- (void)ensureBundledWidgetsInstalled {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *widgetResourcesPath = [DashboardAppDelegate widgetResourcesPath];
+    NSString *widgetPath = [DashboardAppDelegate widgetPath];
+    NSString *bundlePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Widgets"];
+    NSArray *bundleWidgets = [[self class] bundledWidgetNames];
+
+    if (![fileManager fileExistsAtPath:widgetResourcesPath]) {
+        NSError *copyError = nil;
+        if (![fileManager copyItemAtPath:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"WidgetResources"] toPath:widgetResourcesPath error:&copyError]) {
+            NSLog(@"Failed to copy WidgetResources: %@", copyError);
+        } else {
+            [DashboardWidgetsView replacePathOfType:@"js" inDirectory:[widgetResourcesPath stringByAppendingPathComponent:@"button"]];
+            [DashboardWidgetsView replacePathOfType:@"js" inDirectory:[widgetResourcesPath stringByAppendingPathComponent:@"AppleClasses"]];
+        }
+    }
+
+    if (![fileManager fileExistsAtPath:widgetPath]) {
+        [fileManager createDirectoryAtPath:widgetPath withIntermediateDirectories:YES attributes:nil error:NULL];
+    }
+
+    for (NSString *widget in bundleWidgets) {
+        NSString *destinationPath = [widgetPath stringByAppendingPathComponent:widget];
+        if (![fileManager fileExistsAtPath:destinationPath]) {
+            NSError *copyError = nil;
+            if (![fileManager copyItemAtPath:[bundlePath stringByAppendingPathComponent:widget] toPath:destinationPath error:&copyError]) {
+                NSLog(@"Failed to copy default widget %@: %@", widget, copyError);
+            } else {
+                [DashboardWidgetsView replacePathOfType:@"html" inDirectory:destinationPath];
+            }
+        }
     }
 }
 
@@ -60,41 +108,17 @@
 		self.scrollView = [[[UIScrollView alloc] initWithFrame:self.bounds] autorelease];
         self.scrollView.alwaysBounceHorizontal = YES;
 		[self addSubview:self.scrollView];
+
+        [self ensureBundledWidgetsInstalled];
         
         // Create widget directory and copy over default widgets on the first run
         if ([[NSUserDefaults standardUserDefaults] boolForKey:@"doneWithFirstRun"] == NO) {
-            NSString *widgetResourcesPath = [DashboardAppDelegate widgetResourcesPath];
-            // Copy over WidgetResources directory under ~/Library if one does not exist yet
-            if (![[NSFileManager defaultManager] fileExistsAtPath:widgetResourcesPath]) {
-                NSError *error;
-                [[NSFileManager defaultManager] copyItemAtPath:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"WidgetResources"] toPath:widgetResourcesPath error:&error];
-
-                [DashboardWidgetsView replacePathOfType:@"js" inDirectory:[widgetResourcesPath stringByAppendingPathComponent:@"button"]];
-                [DashboardWidgetsView replacePathOfType:@"js" inDirectory:[widgetResourcesPath stringByAppendingPathComponent:@"AppleClasses"]];
-            }
-            
-            NSString *widgetPath = [DashboardAppDelegate widgetPath];
-            // Create widgetPath directory if one does not exist yet
-            if (![[NSFileManager defaultManager] fileExistsAtPath:widgetPath]) {
-                [[NSFileManager defaultManager] createDirectoryAtPath:widgetPath withIntermediateDirectories:YES attributes:nil error:NULL];
-            }
-            
-            NSString *bundlePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Widgets"];
-            NSArray *bundleWidgets = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:bundlePath error:NULL];
+            NSArray *bundleWidgets = [[self class] bundledWidgetNames];
             self.paths = [[NSMutableArray alloc] initWithCapacity:[bundleWidgets count]];
             self.items = [[NSMutableArray alloc] initWithCapacity:[bundleWidgets count]];
             
             for (NSString *widget in bundleWidgets) {
-                // If a default widget is not yet in ~/Library/Widgets, copy it over
-                if (![[NSFileManager defaultManager] fileExistsAtPath:[widgetPath stringByAppendingPathComponent:widget]]) {
-                    NSError *error;
-                    if (![[NSFileManager defaultManager] copyItemAtPath:[bundlePath stringByAppendingPathComponent:widget] toPath:[widgetPath stringByAppendingPathComponent:widget] error:&error]) {
-                        NSLog(@"%@", error);
-                    }
-
-                    [DashboardWidgetsView replacePathOfType:@"html" inDirectory:[widgetPath stringByAppendingPathComponent:widget]];
-                }
-                [self.paths addObject:[widget stringByReplacingOccurrencesOfString:bundlePath withString:@""]];
+                [self.paths addObject:widget];
                 [self.items addObject:[self addIcon:[self.paths lastObject] withFrame:CGRectMake(ICON_WIDTH * [self.items count], 0.0, ICON_WIDTH, self.bounds.size.height)]];
             }
 
@@ -126,6 +150,8 @@
 }
 
 - (void)reloadWidgets {
+    [self ensureBundledWidgetsInstalled];
+
     NSString *widgetPath = [DashboardAppDelegate widgetPath];
 
     // Try to sync self.paths with widgets in widgetPath
