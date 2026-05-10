@@ -16,7 +16,6 @@ xcuserdata/
 *.xcscmblueprint
 *.moved-aside
 *.xcuserstate
-*.ipa
 *.dSYM.zip
 *.dSYM
 
@@ -28,3 +27,4 @@ xcuserdata/
 
 *.mode1v3
 *.mode2v3
+de2v3
