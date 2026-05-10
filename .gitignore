@@ -20,6 +20,8 @@ xcuserdata/
 *.dSYM.zip
 *.dSYM
 
+.codex-ssh-venv/
+
 *.pbxuser
 *.perspective
 *.perspectivev3
